@@ -1,13 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import Bingo from "./assets/image/BINGO.jpg"
 
+interface INumeroSorteado {
+  letra: string;
+  numero: number;
+}
+
+
 function App() {
   const inputRef = useRef<HTMLDivElement>(null);
+  const [numeroSorteado, setNumeroSorteado] = useState<INumeroSorteado>({ letra: '0', numero: 0 });
 
   useEffect(() => {
-    ShowNumberGenerated(5);
-  }, []);
+    ShowNumberGenerated(numeroSorteado.numero);
+  }, [numeroSorteado]);
 
   const ShowNumberGenerated = (number: Number) => {
     const generateNumberId = document.getElementById(`teste-${number}`);
@@ -18,8 +25,43 @@ function App() {
 
   }
 
+
+  // Função para converter número em letra de bingo
+  const numeroParaLetra = (numero: number): [string, number] => {
+    if (numero <= 15) {
+      return ['B', numero];
+    } else if (numero <= 30) {
+      return ['I', numero];
+    } else if (numero <= 45) {
+      return ['N', numero];
+    } else if (numero <= 60) {
+      return ['G', numero];
+    } else {
+      return ['O', numero];
+    }
+  };
+
+  const gerarNumero = () => {
+    const numeroAleatorio = Math.floor(Math.random() * 75) + 1;
+    const [letra, numero] = numeroParaLetra(numeroAleatorio);
+    setNumeroSorteado({ letra: letra, numero: numero });
+
+    falar(`Número ${letra} ${numero}`);
+  };
+
+  const falar = (texto: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      speechSynthesis.speak(utterance);
+    } else {
+      console.error('A API de síntese de voz não é suportada neste navegador.');
+    }
+  }
+
   return (
     <div>
+      <button style={{ position: 'absolute', left: 1950, top: 50 }} onClick={gerarNumero}> GERAR NUMERO </button>
       <div ref={inputRef} className='teste' style={{ position: 'absolute', color: '#F2EBD8', left: 90, top: 350 }} id='teste-1'>
         1
       </div>
